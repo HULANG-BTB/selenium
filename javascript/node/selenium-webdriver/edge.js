@@ -82,12 +82,15 @@ const io = require('./io')
 const chromium = require('./chromium')
 
 /**
- * Name of the EdgeDriver executable.
- * @type {string}
+ * Names of the EdgeDriver executable.
+ * @type {Array<string>}
  * @const
  */
-const EDGEDRIVER_CHROMIUM_EXE =
-  process.platform === 'win32' ? 'msedgedriver.exe' : 'msedgedriver'
+const EDGEDRIVER_CHROMIUM_EXES = [
+  'msedgedriver.exe',
+  'msedgedriver.cmd',
+  'msedgedriver',
+]
 
 /** @type {remote.DriverService} */
 let defaultService = null
@@ -110,7 +113,7 @@ class ServiceBuilder extends chromium.ServiceBuilder {
     if (!exe) {
       throw Error(
         `The WebDriver for Edge could not be found on the current PATH. Please download the ` +
-          `latest version of ${EDGEDRIVER_CHROMIUM_EXE} from ` +
+          `latest version of msedgedriver from ` +
           `https://developer.microsoft.com/en-us/microsoft-edge/tools/webdriver/ ` +
           `and ensure it can be found on your PATH.`
       )
@@ -200,7 +203,13 @@ function getDefaultService() {
  * @return {?string} the located executable, or `null`.
  */
 function locateSynchronously() {
-  return io.findInPath(EDGEDRIVER_CHROMIUM_EXE, true)
+  for (const EDGEDRIVER_CHROMIUM_EXE of EDGEDRIVER_CHROMIUM_EXES) {
+    const located = io.findInPath(EDGEDRIVER_CHROMIUM_EXE, true)
+    if (located) {
+      return located
+    }
+  }
+  return null
 }
 
 Options.prototype.BROWSER_NAME_VALUE = Browser.EDGE
