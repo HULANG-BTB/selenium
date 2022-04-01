@@ -80,12 +80,11 @@ const webdriver = require('./lib/webdriver')
 const remote = require('./remote')
 
 /**
- * Name of the OperaDriver executable.
- * @type {string}
+ * Names of the OperaDriver executable.
+ * @type {Array<string>}
  * @const
  */
-const OPERADRIVER_EXE =
-  process.platform === 'win32' ? 'operadriver.exe' : 'operadriver'
+const OPERADRIVER_EXES = ['operadriver.exe', 'operadriver.cmd', 'operadriver']
 
 /**
  * _Synchronously_ attempts to locate the operadriver executable on the current
@@ -94,7 +93,13 @@ const OPERADRIVER_EXE =
  * @return {?string} the located executable, or `null`.
  */
 function locateSynchronously() {
-  return io.findInPath(OPERADRIVER_EXE, true)
+  for (const OPERADRIVER_EXE of OPERADRIVER_EXES) {
+    const located = io.findInPath(OPERADRIVER_EXE, true)
+    if (located) {
+      return located
+    }
+  }
+  return null
 }
 
 /**
