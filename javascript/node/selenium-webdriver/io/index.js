@@ -212,6 +212,7 @@ function findInPath(file, opt_checkCwd) {
   if (opt_checkCwd) {
     dirs.push(process.cwd())
   }
+  dirs.push(path.resolve(process.cwd(), './node_modules/.bin/'))
   dirs.push.apply(dirs, process.env['PATH'].split(path.delimiter))
 
   let foundInDir = dirs.find((dir) => {

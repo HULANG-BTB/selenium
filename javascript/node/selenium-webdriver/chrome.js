@@ -132,12 +132,15 @@ const { Browser } = require('./lib/capabilities')
 const chromium = require('./chromium')
 
 /**
- * Name of the ChromeDriver executable.
- * @type {string}
+ * Names of the ChromeDriver executable.
+ * @type {Array<string>}
  * @const
  */
-const CHROMEDRIVER_EXE =
-  process.platform === 'win32' ? 'chromedriver.exe' : 'chromedriver'
+const CHROMEDRIVER_EXES = [
+  'chromedriver.exe',
+  'chromedriver.cmd',
+  'chromedriver',
+]
 
 /** @type {remote.DriverService} */
 let defaultService = null
@@ -249,7 +252,13 @@ class Driver extends chromium.Driver {
  * @return {?string} the located executable, or `null`.
  */
 function locateSynchronously() {
-  return io.findInPath(CHROMEDRIVER_EXE, true)
+  for (const CHROMEDRIVER_EXE of CHROMEDRIVER_EXES) {
+    const located = io.findInPath(CHROMEDRIVER_EXE, true)
+    if (located) {
+      return located
+    }
+  }
+  return null
 }
 
 /**
@@ -295,4 +304,3 @@ module.exports = {
   setDefaultService,
   locateSynchronously
 }
-
