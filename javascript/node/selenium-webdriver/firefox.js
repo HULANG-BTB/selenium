@@ -440,8 +440,7 @@ const Context = {
   CHROME: 'chrome',
 }
 
-const GECKO_DRIVER_EXE =
-  process.platform === 'win32' ? 'geckodriver.exe' : 'geckodriver'
+const GECKO_DRIVER_EXES = ['geckodriver.exe', 'geckodriver.cmd', 'geckodriver']
 
 /**
  * _Synchronously_ attempts to locate the geckodriver executable on the current
@@ -450,7 +449,13 @@ const GECKO_DRIVER_EXE =
  * @return {?string} the located executable, or `null`.
  */
 function locateSynchronously() {
-  return io.findInPath(GECKO_DRIVER_EXE, true)
+  for (const GECKO_DRIVER_EXE of GECKO_DRIVER_EXES) {
+    const located = io.findInPath(GECKO_DRIVER_EXE, true)
+    if (located) {
+      return located
+    }
+  }
+  return null
 }
 
 /**
@@ -461,9 +466,7 @@ function findGeckoDriver() {
   let exe = locateSynchronously()
   if (!exe) {
     throw Error(
-      'The ' +
-        GECKO_DRIVER_EXE +
-        ' executable could not be found on the current ' +
+      'The geckodriver executable could not be found on the current ' +
         'PATH. Please download the latest version from ' +
         'https://github.com/mozilla/geckodriver/releases/ ' +
         'and ensure it can be found on your PATH.'
